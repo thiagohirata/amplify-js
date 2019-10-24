@@ -235,7 +235,7 @@ const sign = function(request, access_info, service_info = null) {
     request.headers = request.headers || {};
 
     // datetime string and date string
-    const dt = new Date(),
+    const dt = AWS['util']['date'].getDate(),
         dt_str = dt.toISOString().replace(/[:\-]|\.\d{3}/g, ''),
         d_str = dt_str.substr(0, 8);
 
@@ -286,7 +286,7 @@ const sign = function(request, access_info, service_info = null) {
 };
 
 const signUrl = function(urlToSign: String, accessInfo: any, serviceInfo?: any, expiration?: Number) {
-    const now = new Date().toISOString().replace(/[:\-]|\.\d{3}/g, '');
+    const now = AWS['util']['date'].getDate().toISOString().replace(/[:\-]|\.\d{3}/g, '');
     const today = now.substr(0, 8);
     // Intentionally discarding search
     const {search, ...parsedUrl} = url.parse(urlToSign, true, true);

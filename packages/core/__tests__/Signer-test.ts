@@ -9,7 +9,7 @@ jest.mock('url', () => {
 });
 
 jest.mock('../src/Facet', () => {
-    let ret = {util:{crypto:{lib:{}}}};
+    let ret = {util:{crypto:{lib:{}}, date:{}}};
     ret['util']['crypto']['lib']['createHmac'] = () => {
         const update = () => {
             return { 
@@ -28,13 +28,14 @@ jest.mock('../src/Facet', () => {
             }};
         return { update };
     }
+    ret['util']['date']['getDate'] = () => new Date()
     return {
         AWS: ret
     }; 
 });
 
 import Signer from '../src/Signer';
-import AWS from '../src';
+import { AWS }  from '../src/Facet';
 
 
 describe('Signer test', () => {
@@ -48,6 +49,7 @@ describe('Signer test', () => {
             }
         
             const spyon = jest.spyOn(Date.prototype, 'toISOString').mockReturnValueOnce('0');
+            const getDateSpy = jest.spyOn(AWS['util']['date'], 'getDate')
 
             const res = {"headers": {
                 "Authorization": "AWS4-HMAC-SHA256 Credential=undefined/0///aws4_request, SignedHeaders=host;x-amz-date;x-amz-security-token, Signature=encrypt", 
@@ -55,8 +57,10 @@ describe('Signer test', () => {
                 "host": "host", 
                 "x-amz-date": "0"}}
             expect(Signer.sign(request, access_info)).toEqual(res);
+            expect(getDateSpy).toHaveBeenCalledTimes(1)
 
             spyon.mockClear();
         });
     });
+
 });
